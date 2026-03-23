@@ -1,0 +1,7 @@
+/* Campus map wrapping container */
+.campus-map-wrap {
+  position:relative; background:var(--surface2);
+  border-radius:16px; overflow:hidden;
+  height:260px;
+}
+.campus-map-wrap svg { width:100%; height:100%; }

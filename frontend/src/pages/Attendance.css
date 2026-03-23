@@ -1,0 +1,9 @@
+/* Attendance ring specific CSS */
+.att-ring-wrap { display:flex; align-items:center; gap:28px; }
+.ring-container { position:relative; width:130px; height:130px; flex-shrink:0; }
+.ring-container svg { transform:rotate(-90deg); width:100%; height:100%; }
+.ring-bg { fill:none; stroke:var(--surface3); stroke-width:10; }
+.ring-fill { fill:none; stroke:var(--student); stroke-width:10; stroke-linecap:round; stroke-dasharray:345; transition:stroke-dashoffset 1.5s ease; }
+.ring-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-pct { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:var(--student); }
+.ring-lbl { font-size:10px; color:var(--muted2); margin-top:2px; }

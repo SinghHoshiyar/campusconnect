@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusAI — Smart Campus Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   GLOBAL TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg: #080b12;
+  --surface: #0f1219;
+  --surface2: #161b26;
+  --surface3: #1c2333;
+  --border: #1f2840;
+  --border2: #252e45;
+
+  /* Role accent colors */
+  --student: #00e5a0;
+  --professor: #5b8dff;
+  --admin: #ff6b6b;
+
+  --accent: #00e5a0;
+  --accent2: #5b8dff;
+  --warn: #ffc947;
+  --danger: #ff6b6b;
+  --purple: #c084fc;
+
+  --text: #e2e8f4;
+  --muted: #5a6585;
+  --muted2: #8892a4;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 99px; }
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeDown{ from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes spin    { to{transform:rotate(360deg)} }
+@keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes glow    { 0%,100%{box-shadow:0 0 20px rgba(0,229,160,.2)} 50%{box-shadow:0 0 40px rgba(0,229,160,.5)} }
+@keyframes slideIn { from{transform:translateX(-100%)} to{transform:translateX(0)} }
+@keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes bounce  { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+@keyframes orb1    { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-20px)} }
+@keyframes orb2    { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-20px,30px)} }
+@keyframes numberUp{ from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes scanline{ 0%{top:-100%} 100%{top:100%} }
+
+/* ═══════════════════════════════════════════
+   SCREENS MANAGER
+═══════════════════════════════════════════ */
+.screen { display:none; }
+.screen.active { display:flex; animation: fadeIn .35s ease; }
+
+/* ═══════════════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════════════ */
+#loginScreen {
+  min-height: 100vh;
+  align-items: stretch;
+}
+
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 70px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+.orb1 { width:400px; height:400px; background:var(--student); top:-100px; right:-100px; animation: orb1 8s ease-in-out infinite; }
+.orb2 { width:300px; height:300px; background:var(--professor); bottom:-80px; left:-80px; animation: orb2 10s ease-in-out infinite; }
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
+.login-logo-mark {
+  width: 44px; height: 44px;
+  background: var(--student);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 18px; color: #000;
+  animation: glow 3s ease-in-out infinite;
+}
+
+.login-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+}
+.login-logo-text span { color: var(--student); }
+
+.login-headline {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  animation: fadeUp .6s ease both;
+}
+.login-headline em { font-style: normal; color: var(--student); }
+
+.login-sub {
+  font-size: 15px;
+  color: var(--muted2);
+  line-height: 1.6;
+  max-width: 400px;
+  margin-bottom: 48px;
+  animation: fadeUp .6s .1s ease both;
+}
+
+.role-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeUp .6s .2s ease both;
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.role-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--c, var(--student)), transparent);
+  opacity: 0;
+  transition: opacity .25s;
+}
+.role-card:hover { border-color: var(--c, var(--student)); transform: translateX(6px); }
+.role-card:hover::after { opacity: .05; }
+.role-card.selected { border-color: var(--c); background: rgba(0,0,0,.3); }
+.role-card.selected::after { opacity: .08; }
+
+.role-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: rgba(255,255,255,.04);
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  position: relative; z-index:1;
+}
+.role-info { flex:1; position:relative;z-index:1; }
+.role-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; }
+.role-desc { font-size:12px; color:var(--muted2); margin-top:2px; }
+.role-arrow { color:var(--muted); position:relative;z-index:1; transition:color .2s; }
+.role-card:hover .role-arrow { color:var(--c,var(--student)); }
+
+/* Login right panel */
+.login-right {
+  width: 420px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 48px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.login-form-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px; font-weight: 700;
+  margin-bottom: 6px;
+}
+.login-form-sub { font-size: 13px; color: var(--muted2); margin-bottom: 36px; }
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 28px;
+  border: 1px solid;
+}
+
+.form-group { margin-bottom: 18px; }
+.form-label { font-size: 12px; color: var(--muted2); margin-bottom: 7px; display: block; font-weight: 500; letter-spacing: .03em; }
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-input:focus {
+  border-color: var(--role-color, var(--student));
+  box-shadow: 0 0 0 3px rgba(0,229,160,.08);
+}
+.form-input::placeholder { color: var(--muted); }
+
+.demo-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.login-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.login-btn:active { transform: translateY(0); }
+
+.login-divider {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 24px 0;
+  position: relative;
+}
+.login-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 1px; background: var(--border);
+}
+.login-divider span { background: var(--surface); padding: 0 12px; position:relative; }
+
+.quick-logins { display: flex; flex-direction: column; gap: 8px; }
+.quick-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.quick-btn:hover { border-color: var(--border2); background: var(--surface3); }
+.quick-btn-info { display: flex; align-items: center; gap: 10px; }
+.quick-dot { width:8px;height:8px;border-radius:50%; }
+
+/* ═══════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════ */
+#appScreen { flex-direction: column; min-height: 100vh; }
+
+.app-shell { display:flex; height:100vh; overflow:hidden; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width .3s ease;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.sidebar-logo {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 14px; color: #000;
+  flex-shrink: 0;
+}
+.sidebar-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  white-space: nowrap;
+}
+
+/* User profile in sidebar */
+.sidebar-user {
+  margin: 12px;
+  padding: 12px;
+  background: var(--surface2);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  transition: border-color .2s;
+  position: relative;
+}
+.sidebar-user:hover { border-color: var(--border2); }
+
+.user-avatar {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 13px; color: #000;
+  flex-shrink: 0;
+}
+.user-info { flex:1; overflow:hidden; }
+.user-name { font-size: 13px; font-weight: 500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-role { font-size: 11px; color: var(--muted2); margin-top: 1px; }
+
+.user-chevron { color: var(--muted); font-size: 12px; }
+
+/* Role switcher dropdown */
+.role-switcher {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0; right: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 6px;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 -20px 40px rgba(0,0,0,.4);
+  animation: fadeDown .2s ease;
+}
+.role-switcher.open { display: block; }
+
+.rs-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+  font-size: 13px;
+}
+.rs-item:hover { background: var(--surface3); }
+.rs-item.active { background: rgba(0,229,160,.08); }
+.rs-dot { width:8px;height:8px;border-radius:50%; flex-shrink:0; }
+.rs-item-info { flex:1; }
+.rs-name { font-weight: 500; }
+.rs-email { font-size: 11px; color: var(--muted2); }
+
+/* Nav items */
+.sidebar-nav { flex:1; overflow-y:auto; padding: 8px; }
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 16px 8px 6px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--muted2);
+  font-size: 13px;
+  white-space: nowrap;
+  position: relative;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--surface2); color: var(--text); font-weight:500; }
+.nav-item.active::before {
+  content:'';
+  position: absolute;
+  left:0; top:50%; transform:translateY(-50%);
+  width: 3px; height: 20px;
+  border-radius: 99px;
+  background: var(--accent);
+}
+.nav-icon { font-size: 16px; flex-shrink:0; width:20px; text-align:center; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+  min-width: 18px; text-align:center;
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--muted2);
+  font-size: 13px;
+  transition: all .15s;
+}
+.logout-btn:hover { background: rgba(255,107,107,.08); color: var(--danger); }
+
+/* ─── MAIN ─── */
+.main-content { flex:1; overflow-y:auto; overflow-x:hidden; position:relative; }
+
+/* Top bar */
+.topbar {
+  position: sticky; top:0; z-index:50;
+  background: rgba(8,11,18,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700;
+  flex:1;
+}
+
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+.tb-btn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  transition: all .2s;
+}
+.tb-btn:hover { border-color: var(--accent); color: var(--accent); }
+.tb-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight:600; }
+.tb-btn.primary:hover { filter: brightness(1.1); color: #000; }
+
+.topbar-notif {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  font-size: 16px;
+  transition: all .2s;
+}
+.topbar-notif:hover { border-color: var(--border2); background: var(--surface3); }
+.notif-dot { position:absolute; top:5px; right:5px; width:7px; height:7px; background:var(--danger); border-radius:50%; border:2px solid var(--surface2); }
+
+/* ─── PAGE VIEWS ─── */
+.view { display:none; }
+.view.active { display:block; animation: fadeUp .3s ease; }
+.page-body { padding: 28px; }
+
+/* ═══════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════ */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 14px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  transition: border-color .2s, transform .2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-hover:hover { transform: translateY(-2px); }
+
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 600;
+}
+.card-action { font-size: 12px; color: var(--accent2); cursor:pointer; }
+.card-action:hover { text-decoration: underline; }
+
+/* Stat cards */
+.stat-grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(2,1fr); }
+.g3 { grid-template-columns: repeat(3,1fr); }
+.g4 { grid-template-columns: repeat(4,1fr); }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+  cursor: default;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.stat-card::before {
+  content:'';
+  position: absolute;
+  top:-50px; right:-50px;
+  width:120px; height:120px;
+  border-radius:50%;
+  background: var(--c, var(--accent));
+  opacity:.06;
+}
+.stat-icon { font-size: 20px; margin-bottom: 12px; }
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px; font-weight: 800;
+  line-height:1; margin-bottom: 4px;
+}
+.stat-val span { font-size:16px; color:var(--muted2); font-weight:400; }
+.stat-lbl { font-size: 12px; color: var(--muted2); }
+.stat-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-top: 8px;
+}
+.tag-up { background: rgba(0,229,160,.12); color:var(--student); }
+.tag-down { background: rgba(255,107,107,.12); color:var(--danger); }
+.tag-neutral { background: rgba(91,141,255,.12); color:var(--professor); }
+.tag-warn { background: rgba(255,201,71,.12); color:var(--warn); }
+
+/* Table */
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 0 16px 10px;
+}
+.data-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+}
+.data-table tr:hover td { background: var(--surface2); }
+
+/* Progress bar */
+.prog-wrap { height:6px; background:var(--surface3); border-radius:99px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:99px; transition: width 1s ease; }
+
+/* Badge */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 500;
+}
+.badge-green { background:rgba(0,229,160,.12); color:var(--student); }
+.badge-blue  { background:rgba(91,141,255,.12); color:var(--professor); }
+.badge-red   { background:rgba(255,107,107,.12); color:var(--danger); }
+.badge-warn  { background:rgba(255,201,71,.12); color:var(--warn); }
+.badge-gray  { background:rgba(90,101,133,.12); color:var(--muted2); }
+
+/* Live dot */
+.live { display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--muted2); }
+.live-dot { width:7px; height:7px; border-radius:50%; background:var(--student); animation:pulse 1.5s infinite; }
+
+/* Chart bar groups */
+.chart-bars { display:flex; align-items:flex-end; gap:10px; height:120px; }
+.chart-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.chart-bar {
+  width:100%; border-radius:6px 6px 0 0;
+  transition: height 1s ease;
+  min-height:4px;
+}
+.chart-bar-label { font-size:10px; color:var(--muted); }
+.chart-bar-val { font-size:11px; color:var(--text); }
+
+/* Pill tabs */
+.pill-tabs { display:flex; gap:4px; background:var(--surface2); border-radius:12px; padding:4px; }
+.pill-tab {
+  flex:1; text-align:center; padding:7px 12px; border-radius:8px;
+  font-size:12px; cursor:pointer; color:var(--muted2); transition:all .2s;
+}
+.pill-tab.active { background:var(--surface3); color:var(--text); font-weight:500; }
+
+/* ═══════════════════════════════════════════
+   STUDENT VIEWS
+═══════════════════════════════════════════ */
+.student-accent { --accent: var(--student); }
+
+/* Schedule grid */
+.week-grid { display:grid; grid-template-columns:50px repeat(5,1fr); background:var(--border); gap:1px; border-radius:14px; overflow:hidden; }
+.wg-head { background:var(--surface); padding:12px 8px; text-align:center; font-size:11px; color:var(--muted2); }
+.wg-head strong { display:block; font-size:18px; font-family:'Syne',sans-serif; color:var(--text); font-weight:700; }
+.wg-head.today strong { color:var(--student); }
+.wg-time { background:var(--surface); }
+.wg-slot { height:54px; font-size:10px; color:var(--muted); padding:4px 6px; border-top:1px solid var(--border); }
+.wg-day { background:var(--surface); position:relative; min-height:270px; }
+.sched-block {
+  position:absolute; left:4px; right:4px; border-radius:8px;
+  padding:6px 8px; font-size:11px; cursor:pointer; transition:filter .2s;
+  overflow:hidden;
+}
+.sched-block:hover { filter:brightness(1.2); }
+.sb-name { font-weight:600; font-size:12px; }
+.sb-room { opacity:.7; margin-top:2px; }
+
+/* Attendance ring */
+.att-ring-wrap { display:flex; align-items:center; gap:28px; }
+.ring-container { position:relative; width:130px; height:130px; flex-shrink:0; }
+.ring-container svg { transform:rotate(-90deg); width:100%; height:100%; }
+.ring-bg { fill:none; stroke:var(--surface3); stroke-width:10; }
+.ring-fill { fill:none; stroke:var(--student); stroke-width:10; stroke-linecap:round; stroke-dasharray:345; transition:stroke-dashoffset 1.5s ease; }
+.ring-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-pct { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:var(--student); }
+.ring-lbl { font-size:10px; color:var(--muted2); margin-top:2px; }
+
+/* ═══════════════════════════════════════════
+   PROFESSOR VIEWS
+═══════════════════════════════════════════ */
+
+/* Attendance mark table */
+.att-mark-row td:first-child { font-weight:500; }
+.att-toggle {
+  width:32px; height:18px; border-radius:99px;
+  background:var(--surface3); border:none; cursor:pointer;
+  position:relative; transition:background .2s; flex-shrink:0;
+}
+.att-toggle.present { background: rgba(0,229,160,.3); }
+.att-toggle::after {
+  content:'';
+  position:absolute;
+  width:12px; height:12px; border-radius:50%;
+  background:var(--muted); top:3px; left:3px;
+  transition:all .2s;
+}
+.att-toggle.present::after { background:var(--student); left:17px; }
+
+.course-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px 4px 8px;
+  border-radius: 999px; font-size:12px;
+  border: 1px solid; cursor:pointer;
+  transition: all .15s;
+}
+.course-pill:hover { filter:brightness(1.2); }
+
+/* ═══════════════════════════════════════════
+   ADMIN VIEWS
+═══════════════════════════════════════════ */
+.admin-accent { --accent: var(--admin); }
+
+.admin-stat .stat-card:hover { border-color: rgba(255,107,107,.3); }
+
+/* Campus map admin */
+.campus-map-wrap {
+  position:relative; background:var(--surface2);
+  border-radius:16px; overflow:hidden;
+  height:260px;
+}
+.campus-map-wrap svg { width:100%; height:100%; }
+
+/* Alert items */
+.alert-item {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:14px; background:var(--surface2);
+  border-radius:12px; border-left:3px solid;
+  cursor:pointer; transition:background .2s;
+}
+.alert-item:hover { background:var(--surface3); }
+.alert-body { flex:1; }
+.alert-title { font-size:13px; font-weight:500; margin-bottom:3px; }
+.alert-text { font-size:12px; color:var(--muted2); line-height:1.4; }
+.alert-time { font-size:11px; color:var(--muted); margin-top:4px; }
+.alert-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+
+/* ═══════════════════════════════════════════
+   CHATBOT
+═══════════════════════════════════════════ */
+.chat-shell { display:flex; flex-direction:column; height:calc(100vh - 57px); }
+.chat-header {
+  padding:16px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+  background:var(--surface);
+}
+.chat-ai-avatar {
+  width:40px; height:40px; border-radius:14px;
+  background:linear-gradient(135deg, var(--professor), var(--student));
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+}
+.chat-header-info h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; }
+.chat-header-info p { font-size:11px; color:var(--student); }
+.chat-msgs { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+.msg { display:flex; gap:10px; max-width:80%; animation:fadeUp .3s ease; }
+.msg.user { align-self:flex-end; flex-direction:row-reverse; }
+.msg-av { width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; background:var(--surface2); }
+.msg.user .msg-av { font-size:11px; font-weight:700; font-family:'Syne',sans-serif; color:#000; }
+.msg-bbl { padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.5; }
+.msg.ai .msg-bbl { background:var(--surface2); border:1px solid var(--border); border-bottom-left-radius:4px; }
+.msg.user .msg-bbl { background:var(--professor); color:#fff; border-bottom-right-radius:4px; }
+.msg-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.chip { padding:5px 12px; border-radius:999px; border:1px solid var(--border); font-size:12px; cursor:pointer; background:var(--surface); transition:all .2s; }
+.chip:hover { border-color:var(--professor); color:var(--professor); }
+.typing-ind { display:flex; gap:4px; align-items:center; padding:10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:14px; border-bottom-left-radius:4px; width:fit-content; }
+.t-dot { width:7px; height:7px; background:var(--muted); border-radius:50%; animation:bounce 1.2s infinite; }
+.t-dot:nth-child(2) { animation-delay:.2s; }
+.t-dot:nth-child(3) { animation-delay:.4s; }
+.chat-input-area { padding:14px 24px 20px; border-top:1px solid var(--border); display:flex; gap:8px; }
+.chat-inp {
+  flex:1; background:var(--surface2); border:1px solid var(--border2);
+  border-radius:14px; padding:11px 16px; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:13px;
+  resize:none; outline:none; min-height:44px; max-height:100px;
+  transition:border-color .2s;
+}
+.chat-inp:focus { border-color:var(--professor); }
+.chat-inp::placeholder { color:var(--muted); }
+.send-btn {
+  width:44px; height:44px; border-radius:12px;
+  background:var(--professor); border:none; color:#fff;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:filter .2s;
+}
+.send-btn:hover { filter:brightness(1.15); }
+
+/* ═══════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════ */
+.flex { display:flex; }
+.flex-col { flex-direction:column; }
+.items-center { align-items:center; }
+.gap4 { gap:4px; }
+.gap8 { gap:8px; }
+.gap12 { gap:12px; }
+.gap16 { gap:16px; }
+.gap20 { gap:20px; }
+.mb12 { margin-bottom:12px; }
+.mb16 { margin-bottom:16px; }
+.mb20 { margin-bottom:20px; }
+.mb24 { margin-bottom:24px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+.text-muted { color:var(--muted2); }
+.text-sm { font-size:12px; }
+.text-xs { font-size:11px; }
+.font-syne { font-family:'Syne',sans-serif; }
+.fw700 { font-weight:700; }
+.mt-auto { margin-top:auto; }
+.hidden { display:none !important; }
+
+/* Responsive */
+@media(max-width:900px){
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .login-right{display:none}
+  .sidebar{width:60px}
+  .sidebar-brand,.nav-item span,.nav-section-label,.sidebar-user .user-info,.sidebar-user .user-chevron{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════════╗
+     ║         LOGIN SCREEN             ║
+     ╚═══════════════════════════════════╝ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-left">
+    <div class="login-bg-orb orb1"></div>
+    <div class="login-bg-orb orb2"></div>
+
+    <div class="login-logo">
+      <div class="login-logo-mark">CA</div>
+      <div class="login-logo-text">Campus<span>AI</span></div>
+    </div>
+
+    <h1 class="login-headline">Your campus,<br><em>intelligently</em> connected.</h1>
+    <p class="login-sub">An AI-powered platform uniting students, professors, and administrators in one seamless ecosystem.</p>
+
+    <div class="role-cards">
+      <div class="role-card" style="--c:var(--student)" onclick="selectRole('student')">
+        <div class="role-icon">🎓</div>
+        <div class="role-info">
+          <div class="role-name">Student</div>
+          <div class="role-desc">Access schedules, attendance, AI assistant & more</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </div>
+      <div class="role-card" style="--c:var(--professor)" onclick="selectRole('professor')">
+        <div class="role-icon">📋</div>
+        <div class="role-info">
+          <div class="role-name">Professor</div>
+          <div class="role-desc">Manage classes, mark attendance, grade submissions</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </div>
+      <div class="role-card" style="--c:var(--admin)" onclick="selectRole('admin')">
+        <div class="role-icon">🏛️</div>
+        <div class="role-info">
+          <div class="role-name">Admin</div>
+          <div class="role-desc">Campus overview, energy, announcements, user management</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div id="loginFormTitle" class="login-form-title">Welcome back</div>
+    <div id="loginFormSub" class="login-form-sub">Sign in to your account</div>
+
+    <div id="roleBadge" class="role-badge" style="display:none"></div>
+
+    <div class="form-group">
+      <label class="form-label">EMAIL ADDRESS</label>
+      <input class="form-input" id="loginEmail" type="email" placeholder="you@campus.edu" style="--role-color:var(--student)">
+      <div class="demo-hint" id="demoHint">💡 Click a role on the left to auto-fill</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">PASSWORD</label>
+      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" value="demo1234">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()" style="background:var(--student);color:#000">
+      Sign In <span>→</span>
+    </button>
+
+    <div class="login-divider"><span>or quick access</span></div>
+
+    <div class="quick-logins">
+      <div class="quick-btn" onclick="quickLogin('student')">
+        <div class="quick-btn-info">
+          <div class="quick-dot" style="background:var(--student)"></div>
+          <div>
+            <div style="font-size:13px;font-weight:500">Aryan Kumar</div>
+            <div style="font-size:11px;color:var(--muted2)">aryan@campus.edu · Student</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted2)">→</div>
+      </div>
+      <div class="quick-btn" onclick="quickLogin('professor')">
+        <div class="quick-btn-info">
+          <div class="quick-dot" style="background:var(--professor)"></div>
+          <div>
+            <div style="font-size:13px;font-weight:500">Prof. Priya Mehta</div>
+            <div style="font-size:11px;color:var(--muted2)">pmehta@campus.edu · Professor</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted2)">→</div>
+      </div>
+      <div class="quick-btn" onclick="quickLogin('admin')">
+        <div class="quick-btn-info">
+          <div class="quick-dot" style="background:var(--admin)"></div>
+          <div>
+            <div style="font-size:13px;font-weight:500">Dr. Vikram Singh</div>
+            <div style="font-size:11px;color:var(--muted2)">vsingh@campus.edu · Admin</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted2)">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════╗
+     ║           APP SCREEN             ║
+     ╚═══════════════════════════════════╝ -->
+<div id="appScreen" class="screen">
+  <div class="app-shell">
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo" id="sidebarLogo">CA</div>
+        <div class="sidebar-brand">CampusAI</div>
+      </div>
+
+      <!-- User profile -->
+      <div class="sidebar-user" id="sidebarUser" onclick="toggleRoleSwitcher()">
+        <div class="user-avatar" id="sidebarAvatar">AK</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">Aryan Kumar</div>
+          <div class="user-role" id="sidebarRole">Student · Sem 6</div>
+        </div>
+        <div class="user-chevron">⌃</div>
+        <!-- Role switcher -->
+        <div class="role-switcher" id="roleSwitcher">
+          <div class="rs-item active" onclick="switchRole('student',event)">
+            <div class="rs-dot" style="background:var(--student)"></div>
+            <div class="rs-item-info">
+              <div class="rs-name">Aryan Kumar</div>
+              <div class="rs-email">Student</div>
+            </div>
+            <div style="font-size:12px;color:var(--student)">✓</div>
+          </div>
+          <div class="rs-item" onclick="switchRole('professor',event)">
+            <div class="rs-dot" style="background:var(--professor)"></div>
+            <div class="rs-item-info">
+              <div class="rs-name">Prof. Priya Mehta</div>
+              <div class="rs-email">Professor</div>
+            </div>
+          </div>
+          <div class="rs-item" onclick="switchRole('admin',event)">
+            <div class="rs-dot" style="background:var(--admin)"></div>
+            <div class="rs-item-info">
+              <div class="rs-name">Dr. Vikram Singh</div>
+              <div class="rs-email">Admin</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nav (dynamically populated) -->
+      <div class="sidebar-nav" id="sidebarNav"></div>
+
+      <div class="sidebar-footer">
+        <div class="logout-btn" onclick="logout()">
+          <span class="nav-icon">⎋</span>
+          <span>Log Out</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <div class="main-content" id="mainContent">
+      <div class="topbar">
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-actions">
+          <div class="live"><div class="live-dot"></div> <span id="topbarDate">March 1, 2026</span></div>
+          <div class="topbar-notif" id="topbarNotif">
+            🔔
+            <div class="notif-dot"></div>
+          </div>
+          <button class="tb-btn primary" id="topbarCta" onclick="showView('chat')">Ask AI</button>
+        </div>
+      </div>
+      <div id="viewContainer"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let currentRole = 'student';
+let selectedLoginRole = null;
+let roleSwitcherOpen = false;
+
+const ROLES = {
+  student: {
+    name: 'Aryan Kumar', initials: 'AK', email: 'aryan@campus.edu',
+    roleLabel: 'Student · Sem 6', accent: '#00e5a0', accentVar: 'var(--student)',
+    nav: [
+      { id:'home', icon:'⊞', label:'Dashboard' },
+      { id:'schedule', icon:'📅', label:'My Schedule' },
+      { id:'attendance', icon:'✅', label:'Attendance' },
+      { id:'assignments', icon:'📝', label:'Assignments', badge:3 },
+      { id:'chat', icon:'🤖', label:'AI Assistant', badge:1 },
+      { id:'map', icon:'🗺️', label:'Campus Map' },
+      { id:'energy', icon:'⚡', label:'Energy Monitor' },
+      { id:'announcements', icon:'📢', label:'Announcements', badge:2 },
+    ]
+  },
+  professor: {
+    name: 'Prof. Priya Mehta', initials: 'PM', email: 'pmehta@campus.edu',
+    roleLabel: 'Professor · CSE Dept', accent: '#5b8dff', accentVar: 'var(--professor)',
+    nav: [
+      { id:'home', icon:'⊞', label:'Dashboard' },
+      { id:'mark_att', icon:'✅', label:'Mark Attendance' },
+      { id:'my_classes', icon:'📚', label:'My Classes' },
+      { id:'grades', icon:'🏆', label:'Grades & Results' },
+      { id:'chat', icon:'🤖', label:'AI Assistant' },
+      { id:'timetable', icon:'📅', label:'Timetable' },
+      { id:'announcements', icon:'📢', label:'Announcements', badge:1 },
+    ]
+  },
+  admin: {
+    name: 'Dr. Vikram Singh', initials: 'VS', email: 'vsingh@campus.edu',
+    roleLabel: 'Dean · Administration', accent: '#ff6b6b', accentVar: 'var(--admin)',
+    nav: [
+      { id:'home', icon:'⊞', label:'Dashboard' },
+      { id:'users', icon:'👥', label:'User Management' },
+      { id:'campus_map', icon:'🗺️', label:'Campus Overview' },
+      { id:'energy_admin', icon:'⚡', label:'Energy Control' },
+      { id:'announcements_admin', icon:'📢', label:'Announcements' },
+      { id:'reports', icon:'📊', label:'Reports & Analytics' },
+      { id:'chat', icon:'🤖', label:'AI Assistant' },
+      { id:'settings', icon:'⚙️', label:'System Settings' },
+    ]
+  }
+};
+
+/* ═══════════════════════════════
+   LOGIN
+═══════════════════════════════ */
+function selectRole(role) {
+  selectedLoginRole = role;
+  const r = ROLES[role];
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.role-card')[['student','professor','admin'].indexOf(role)].classList.add('selected');
+
+  const badge = document.getElementById('roleBadge');
+  const colors = {student:'var(--student)',professor:'var(--professor)',admin:'var(--admin)'};
+  const icons = {student:'🎓',professor:'📋',admin:'🏛️'};
+  badge.style.display='inline-flex';
+  badge.style.color=colors[role];
+  badge.style.borderColor=colors[role];
+  badge.style.background=`rgba(${role==='student'?'0,229,160':role==='professor'?'91,141,255':'255,107,107'},.08)`;
+  badge.innerHTML=`${icons[role]} ${role.charAt(0).toUpperCase()+role.slice(1)}`;
+
+  document.getElementById('loginEmail').value=r.email;
+  document.getElementById('loginEmail').style.setProperty('--role-color',colors[role]);
+  document.getElementById('loginBtn').style.background=colors[role];
+  document.getElementById('loginBtn').style.color= role==='student'?'#000':'#fff';
+  document.getElementById('loginFormTitle').textContent=`Welcome, ${r.name.split(' ')[role==='professor'?1:0]}!`;
+  document.getElementById('loginFormSub').textContent=`Signing in as ${role.charAt(0).toUpperCase()+role.slice(1)}`;
+  document.getElementById('demoHint').style.display='none';
+}
+
+function quickLogin(role) {
+  selectRole(role);
+  setTimeout(()=>doLogin(),300);
+}
+
+function doLogin() {
+  const role = selectedLoginRole || 'student';
+  currentRole = role;
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  initApp();
+}
+
+/* ═══════════════════════════════
+   APP INIT
+═══════════════════════════════ */
+function initApp() {
+  const r = ROLES[currentRole];
+  document.documentElement.style.setProperty('--accent', r.accent);
+  // Sidebar user
+  document.getElementById('sidebarAvatar').textContent = r.initials;
+  document.getElementById('sidebarAvatar').style.background = r.accent;
+  document.getElementById('sidebarAvatar').style.color = currentRole==='student'?'#000':'#fff';
+  document.getElementById('sidebarName').textContent = r.name;
+  document.getElementById('sidebarRole').textContent = r.roleLabel;
+  document.getElementById('sidebarLogo').style.background = r.accent;
+  document.getElementById('sidebarLogo').style.color = currentRole==='student'?'#000':'#fff';
+  // Nav
+  buildNav();
+  // Mark active in switcher
+  document.querySelectorAll('.rs-item').forEach((el,i)=>{
+    el.classList.remove('active');
+    const roles=['student','professor','admin'];
+    if(roles[i]===currentRole) el.classList.add('active');
+    el.querySelector('div:last-child').innerHTML = roles[i]===currentRole?`<div style="font-size:12px;color:${r.accent}">✓</div>`:'';
+  });
+  // CTA
+  document.getElementById('topbarCta').textContent = currentRole==='admin' ? 'New Announcement' : 'Ask AI';
+  document.getElementById('topbarCta').onclick = currentRole==='admin' ? ()=>showView('announcements_admin') : ()=>showView('chat');
+  // Load home
+  showView('home');
+}
+
+function buildNav() {
+  const nav = ROLES[currentRole].nav;
+  const container = document.getElementById('sidebarNav');
+  container.innerHTML = `<div class="nav-section-label">Main Menu</div>`;
+  nav.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'nav-item';
+    div.id = 'nav-'+item.id;
+    div.onclick = () => showView(item.id);
+    div.innerHTML = `<span class="nav-icon">${item.icon}</span><span>${item.label}</span>${item.badge?`<span class="nav-badge">${item.badge}</span>`:''}`;
+    container.appendChild(div);
+  });
+}
+
+function showView(viewId) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+viewId);
+  if(navEl) navEl.classList.add('active');
+  const titles = {
+    home:'Dashboard', schedule:'My Schedule', attendance:'Attendance Overview',
+    assignments:'Assignments & Submissions', chat:'AI Assistant', map:'Campus Map',
+    energy:'Energy Monitor', announcements:'Announcements', mark_att:'Mark Attendance',
+    my_classes:'My Classes', grades:'Grades & Results', timetable:'Timetable',
+    users:'User Management', campus_map:'Campus Overview', energy_admin:'Energy Control',
+    announcements_admin:'Announcements', reports:'Reports & Analytics', settings:'System Settings'
+  };
+  document.getElementById('topbarTitle').textContent = titles[viewId] || viewId;
+  const container = document.getElementById('viewContainer');
+  container.innerHTML = '';
+  const fn = views[viewId] || views['home'];
+  container.innerHTML = fn();
+  afterRender(viewId);
+}
+
+function afterRender(viewId) {
+  // Animate attendance ring
+  if(viewId==='attendance'||viewId==='home') {
+    setTimeout(()=>{
+      const ring = document.querySelector('.ring-fill');
+      if(ring) ring.style.strokeDashoffset = '44';
+    },100);
+  }
+  // Chat setup
+  if(viewId==='chat') {
+    const inp = document.getElementById('chatInp');
+    if(inp) inp.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} });
+  }
+}
+
+/* ═══════════════════════════════
+   ROLE SWITCHER
+═══════════════════════════════ */
+function toggleRoleSwitcher() {
+  roleSwitcherOpen=!roleSwitcherOpen;
+  document.getElementById('roleSwitcher').classList.toggle('open',roleSwitcherOpen);
+}
+
+function switchRole(role,e) {
+  e.stopPropagation();
+  currentRole=role;
+  roleSwitcherOpen=false;
+  document.getElementById('roleSwitcher').classList.remove('open');
+  initApp();
+}
+
+document.addEventListener('click', ()=>{
+  if(roleSwitcherOpen) { roleSwitcherOpen=false; document.getElementById('roleSwitcher').classList.remove('open'); }
+});
+
+function logout() {
+  currentRole='student'; selectedLoginRole=null;
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('roleBadge').style.display='none';
+  document.getElementById('loginFormTitle').textContent='Welcome back';
+  document.getElementById('loginFormSub').textContent='Sign in to your account';
+  document.getElementById('loginEmail').value='';
+  document.getElementById('demoHint').style.display='flex';
+}
+
+/* ═══════════════════════════════
+   VIEWS
+═══════════════════════════════ */
+const views = {
+  // ─────────────────────────────
+  home: () => {
+    if(currentRole==='student') return studentHome();
+    if(currentRole==='professor') return professorHome();
+    return adminHome();
+  },
+
+  // ─────────────────────────────
+  // STUDENT VIEWS
+  schedule: () => `
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h2 class="font-syne fw700" style="font-size:18px">Weekly Schedule</h2>
+        <p class="text-muted text-sm" style="margin-top:3px">Semester 6 — CSE Branch</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="tb-btn">‹ Prev</button>
+        <button class="tb-btn fw700" style="border-color:var(--accent);color:var(--accent)">Feb 28 – Mar 6</button>
+        <button class="tb-btn">Next ›</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="week-grid">
+        <div class="wg-head" style="background:var(--surface2)"><span class="text-xs text-muted">TIME</span></div>
+        <div class="wg-head">Mon<strong>28</strong></div>
+        <div class="wg-head today">Tue<strong>01</strong></div>
+        <div class="wg-head">Wed<strong>02</strong></div>
+        <div class="wg-head">Thu<strong>03</strong></div>
+        <div class="wg-head">Fri<strong>04</strong></div>
+        <!-- Time -->
+        <div class="wg-time">
+          ${['8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM'].map(t=>`<div class="wg-slot">${t}</div>`).join('')}
+        </div>
+        <!-- Mon -->
+        <div class="wg-day">
+          <div class="sched-block" style="top:54px;height:81px;background:rgba(91,141,255,.18);border-left:3px solid #5b8dff;color:#5b8dff"><div class="sb-name">DSA</div><div class="sb-room">R-204</div></div>
+          <div class="sched-block" style="top:324px;height:81px;background:rgba(255,107,107,.18);border-left:3px solid #ff6b6b;color:#ff6b6b"><div class="sb-name">SE Lab</div><div class="sb-room">Lab 7</div></div>
+        </div>
+        <!-- Tue -->
+        <div class="wg-day">
+          <div class="sched-block" style="top:54px;height:81px;background:rgba(91,141,255,.18);border-left:3px solid #5b8dff;color:#5b8dff"><div class="sb-name">DSA</div><div class="sb-room">R-204</div></div>
+          <div class="sched-block" style="top:162px;height:81px;background:rgba(0,229,160,.18);border-left:3px solid #00e5a0;color:#00e5a0"><div class="sb-name">ML</div><div class="sb-room">Lab 3</div></div>
+          <div class="sched-block" style="top:270px;height:54px;background:rgba(255,201,71,.18);border-left:3px solid #ffc947;color:#ffc947"><div class="sb-name">Networks</div></div>
+        </div>
+        <!-- Wed -->
+        <div class="wg-day">
+          <div class="sched-block" style="top:0;height:81px;background:rgba(192,132,252,.18);border-left:3px solid #c084fc;color:#c084fc"><div class="sb-name">DBMS</div><div class="sb-room">R-301</div></div>
+          <div class="sched-block" style="top:162px;height:81px;background:rgba(0,229,160,.18);border-left:3px solid #00e5a0;color:#00e5a0"><div class="sb-name">ML</div><div class="sb-room">Lab 3</div></div>
+        </div>
+        <!-- Thu -->
+        <div class="wg-day">
+          <div class="sched-block" style="top:54px;height:81px;background:rgba(255,107,107,.18);border-left:3px solid #ff6b6b;color:#ff6b6b"><div class="sb-name">SE Lab</div><div class="sb-room">Lab 7</div></div>
+          <div class="sched-block" style="top:216px;height:54px;background:rgba(192,132,252,.18);border-left:3px solid #c084fc;color:#c084fc"><div class="sb-name">DBMS</div></div>
+        </div>
+        <!-- Fri -->
+        <div class="wg-day">
+          <div class="sched-block" style="top:54px;height:81px;background:rgba(255,201,71,.18);border-left:3px solid #ffc947;color:#ffc947"><div class="sb-name">Networks</div><div class="sb-room">R-108</div></div>
+          <div class="sched-block" style="top:162px;height:81px;background:rgba(91,141,255,.18);border-left:3px solid #5b8dff;color:#5b8dff"><div class="sb-name">DSA</div><div class="sb-room">R-204</div></div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  attendance: () => `
+  <div class="page-body">
+    <div class="grid2 mb20">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Overall Attendance</span><span class="text-sm text-muted">Sem 6</span></div>
+        <div class="att-ring-wrap">
+          <div class="ring-container">
+            <svg viewBox="0 0 110 110"><circle class="ring-bg" cx="55" cy="55" r="45"/><circle class="ring-fill" cx="55" cy="55" r="45" style="stroke-dashoffset:345"/></svg>
+            <div class="ring-inner"><div class="ring-pct">87%</div><div class="ring-lbl">Attended</div></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+            ${[['DSA','92%','#5b8dff',92],['ML','88%','#00e5a0',88],['Networks','76%','#ffc947',76],['SE Lab','95%','#ff6b6b',95],['DBMS','82%','#c084fc',82]].map(([n,p,c,v])=>`
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${n}</span><span style="color:${c}">${p}</span></div>
+              <div class="prog-wrap"><div class="prog-fill" style="width:${v}%;background:${c}"></div></div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Month Summary</span></div>
+        <div class="stat-grid g2">
+          <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">📗</div><div class="stat-val">42<span>/48</span></div><div class="stat-lbl">Classes Attended</div><div class="stat-tag tag-up">↑ 87.5%</div></div>
+          <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">📕</div><div class="stat-val">6</div><div class="stat-lbl">Classes Missed</div><div class="stat-tag tag-down">3 unexcused</div></div>
+          <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">⚠️</div><div class="stat-val">1</div><div class="stat-lbl">Shortage Risk</div><div class="stat-tag tag-warn">Networks</div></div>
+          <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">📅</div><div class="stat-val">18</div><div class="stat-lbl">Classes Left</div><div class="stat-tag tag-neutral">This sem</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Detailed Log</span></div>
+      <table class="data-table">
+        <thead><tr><th>Course</th><th>Attended</th><th>Total</th><th>%</th><th>Status</th><th>Can Miss</th></tr></thead>
+        <tbody>
+          ${[['Data Structures','22','24','92%','green','3 more'],['Machine Learning','21','24','87%','green','2 more'],['Computer Networks','18','24','75%','warn','0 more ⚠️'],['SE Lab','23','24','95%','green','4 more'],['DBMS','20','24','83%','green','2 more']].map(([c,a,t,p,s,m])=>`
+          <tr><td style="font-weight:500">${c}</td><td>${a}</td><td>${t}</td><td>${p}</td><td><span class="badge badge-${s==='warn'?'warn':'green'}">${s==='warn'?'⚠️ Low':'✅ OK'}</span></td><td class="text-muted text-sm">${m}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`,
+
+  assignments: () => `
+  <div class="page-body">
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">🔥</div><div class="stat-val">3</div><div class="stat-lbl">Due This Week</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">🕐</div><div class="stat-val">2</div><div class="stat-lbl">In Progress</div></div>
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">✅</div><div class="stat-val">14</div><div class="stat-lbl">Submitted</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">🏆</div><div class="stat-val">8.3</div><div class="stat-lbl">Avg Score</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Pending Assignments</span></div>
+      <table class="data-table">
+        <thead><tr><th>Assignment</th><th>Course</th><th>Due Date</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:500">Binary Tree Lab Report</td><td>DSA</td><td style="color:var(--danger)">Mar 3</td><td><span class="badge badge-red">🔥 High</span></td><td><span class="badge badge-warn">In Progress</span></td><td><button class="tb-btn" style="font-size:11px;padding:4px 10px">Submit</button></td></tr>
+          <tr><td style="font-weight:500">ML Model — Iris Dataset</td><td>Machine Learning</td><td style="color:var(--warn)">Mar 5</td><td><span class="badge badge-warn">⚡ Medium</span></td><td><span class="badge badge-gray">Not Started</span></td><td><button class="tb-btn" style="font-size:11px;padding:4px 10px">Submit</button></td></tr>
+          <tr><td style="font-weight:500">OSI Layer Diagram</td><td>Networks</td><td>Mar 8</td><td><span class="badge badge-blue">📘 Low</span></td><td><span class="badge badge-gray">Not Started</span></td><td><button class="tb-btn" style="font-size:11px;padding:4px 10px">Submit</button></td></tr>
+          <tr><td style="font-weight:500">ER Diagram — Hospital DB</td><td>DBMS</td><td>Mar 10</td><td><span class="badge badge-blue">📘 Low</span></td><td><span class="badge badge-warn">In Progress</span></td><td><button class="tb-btn" style="font-size:11px;padding:4px 10px">Submit</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><span class="card-title">Recent Grades</span></div>
+      <table class="data-table">
+        <thead><tr><th>Assignment</th><th>Course</th><th>Submitted</th><th>Score</th><th>Grade</th></tr></thead>
+        <tbody>
+          ${[['Sorting Algorithm Analysis','DSA','Feb 20','18/20','A'],['CNN Architecture Report','ML','Feb 15','16/20','B+'],['Socket Programming Lab','Networks','Feb 10','19/20','A+'],['SQL Queries Assignment','DBMS','Feb 5','17/20','A']].map(([a,c,d,s,g])=>`
+          <tr><td style="font-weight:500">${a}</td><td>${c}</td><td class="text-muted text-sm">${d}</td><td>${s}</td><td><span class="badge badge-green">${g}</span></td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`,
+
+  map: () => `
+  <div class="page-body">
+    <div class="card mb20" style="padding:0;overflow:hidden">
+      <div class="campus-map-wrap" style="height:360px">
+        <svg viewBox="0 0 800 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="800" height="360" fill="#0f1219"/>
+          <line x1="0" y1="180" x2="800" y2="180" stroke="#1f2840" stroke-width="18"/>
+          <line x1="400" y1="0" x2="400" y2="360" stroke="#1f2840" stroke-width="18"/>
+          <line x1="200" y1="0" x2="200" y2="360" stroke="#1f2840" stroke-width="8"/>
+          <line x1="600" y1="0" x2="600" y2="360" stroke="#1f2840" stroke-width="8"/>
+          <rect x="24" y="24" width="160" height="90" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="104" y="74" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Academic Block A</text>
+          <rect x="616" y="24" width="160" height="90" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="696" y="74" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Library</text>
+          <rect x="24" y="140" width="160" height="90" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="104" y="190" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Academic Block B</text>
+          <rect x="616" y="140" width="160" height="90" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="696" y="190" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Labs Complex</text>
+          <rect x="24" y="260" width="160" height="90" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="104" y="310" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Hostel Block</text>
+          <rect x="616" y="260" width="160" height="90" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="696" y="310" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Cafeteria</text>
+          <rect x="310" y="120" width="180" height="120" rx="8" fill="#161b26" stroke="#1f2840" stroke-width="1.5"/>
+          <text x="400" y="185" text-anchor="middle" fill="#5a6585" font-size="12" font-family="DM Sans">Admin Block</text>
+          <!-- Route -->
+          <path d="M400 180 L400 140 L200 140 L200 69 L184 69" stroke="#00e5a0" stroke-width="2.5" stroke-dasharray="6 4" opacity="0.7"/>
+          <!-- You -->
+          <circle cx="400" cy="180" r="16" fill="rgba(91,141,255,.2)" stroke="#5b8dff" stroke-width="2"/>
+          <circle cx="400" cy="180" r="7" fill="#5b8dff"/>
+          <text x="400" y="165" text-anchor="middle" fill="#5b8dff" font-size="11" font-family="DM Sans">You</text>
+          <!-- Pins -->
+          <circle cx="104" cy="69" r="8" fill="#00e5a0" stroke="#080b12" stroke-width="2"/>
+          <circle cx="696" cy="69" r="8" fill="#5b8dff" stroke="#080b12" stroke-width="2"/>
+          <circle cx="104" cy="185" r="8" fill="#ffc947" stroke="#080b12" stroke-width="2"/>
+          <circle cx="696" cy="185" r="8" fill="#c084fc" stroke="#080b12" stroke-width="2"/>
+          <circle cx="104" cy="305" r="8" fill="#ff9f43" stroke="#080b12" stroke-width="2"/>
+          <circle cx="696" cy="305" r="8" fill="#ff6b6b" stroke="#080b12" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);gap:14px">
+      ${[['🏫','Academic Block A','Open · 7AM–9PM','green','5 min walk'],['📚','Library','Open 24/7','green','8 min walk'],['🧪','Labs Complex','Lab 3 Busy','warn','4 min walk'],['🍽️','Cafeteria','Lunch 12–2 PM','green','6 min walk'],['🏠','Hostel Block','Always open','green','12 min walk'],['⚕️','Medical Centre','Open · 24hrs','green','7 min walk']].map(([i,n,s,sc,w])=>`
+      <div class="card card-hover" style="cursor:pointer">
+        <div style="font-size:22px;margin-bottom:8px">${i}</div>
+        <div class="font-syne fw700 text-sm mb12" style="font-size:13px">${n}</div>
+        <div class="badge badge-${sc}" style="margin-bottom:8px">● ${s}</div>
+        <div class="text-xs text-muted">${w}</div>
+      </div>`).join('')}
+    </div>
+  </div>`,
+
+  energy: () => `
+  <div class="page-body">
+    <div class="stat-grid g3 mb20">
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">⚡</div><div class="stat-val">2.4<span>kW</span></div><div class="stat-lbl">Current Campus Usage</div><div class="stat-tag tag-up">↓ 8% below avg</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">🌞</div><div class="stat-val">34<span>%</span></div><div class="stat-lbl">Solar Generation</div><div class="stat-tag tag-up">Sunny day</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">💧</div><div class="stat-val">1.2<span>kL</span></div><div class="stat-lbl">Water Usage Today</div><div class="stat-tag tag-neutral">On track</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Building Usage</span><span class="live"><div class="live-dot"></div>Live</span></div>
+        ${[['Academic A','78%','var(--student)',780],['Library','45%','var(--professor)',450],['Labs','62%','var(--warn)',620],['Cafeteria','33%','var(--danger)',330],['Hostel','20%','var(--purple)',200]].map(([n,w,c,v])=>`
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span class="text-muted">${n}</span><span>${v}W</span></div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:${w};background:${c}"></div></div>
+        </div>`).join('')}
+        <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;display:flex;justify-content:space-between;align-items:center">
+          <span class="text-sm text-muted">Total Campus</span>
+          <span class="font-syne fw700" style="font-size:20px;color:var(--student)">2.38 kW</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Daily Trend</span><span class="text-sm text-muted">vs average</span></div>
+        <svg viewBox="0 0 280 140" fill="none" style="width:100%">
+          <line x1="0" y1="35" x2="280" y2="35" stroke="var(--border)" stroke-width="1"/>
+          <line x1="0" y1="70" x2="280" y2="70" stroke="var(--border)" stroke-width="1"/>
+          <line x1="0" y1="105" x2="280" y2="105" stroke="var(--border)" stroke-width="1"/>
+          <path d="M0 70 C30 66 60 63 90 70 S150 75 180 68 S240 60 280 66" stroke="var(--surface3)" stroke-width="2" stroke-dasharray="4 4"/>
+          <path d="M0 105 C30 88 60 75 90 62 S150 52 180 58 S240 48 280 62" stroke="url(#eg)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M0 105 C30 88 60 75 90 62 S150 52 180 58 S240 48 280 62 V140 H0Z" fill="url(#ea)" opacity=".25"/>
+          <defs>
+            <linearGradient id="eg" x1="0" y1="0" x2="280" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#00e5a0"/><stop offset="1" stop-color="#5b8dff"/></linearGradient>
+            <linearGradient id="ea" x1="0" y1="0" x2="0" y2="140" gradientUnits="userSpaceOnUse"><stop stop-color="#00e5a0"/><stop offset="1" stop-color="#00e5a0" stop-opacity="0"/></linearGradient>
+          </defs>
+          ${['6AM','9AM','12PM','3PM','6PM'].map((t,i)=>`<text x="${i*70}" y="135" fill="var(--muted)" font-size="9" font-family="DM Sans">${t}</text>`).join('')}
+        </svg>
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:12px">
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:2px;background:var(--student);border-radius:99px"></div><span class="text-muted">Today</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:2px;background:var(--border2);border-top:2px dashed var(--border2)"></div><span class="text-muted">Average</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  announcements: () => `
+  <div class="page-body">
+    <div class="flex gap8 mb20">
+      <button class="tb-btn primary" style="border-radius:999px">All</button>
+      <button class="tb-btn">Urgent</button>
+      <button class="tb-btn">Academic</button>
+      <button class="tb-btn">Events</button>
+    </div>
+    <div class="flex flex-col gap12">
+      ${[
+        ['🚨','urgent','Mid-term Exam Schedule Released','Examinations from March 10–15. All students must check individual timetables on the student portal. Seating charts will be uploaded by March 7.','2 hrs ago'],
+        ['📢','info','Hackathon 2026 — Registration Open','Register your team for the 48-hour campus hackathon. Prizes worth ₹2 lakh+. Last date: March 8.','Yesterday'],
+        ['✅','success','Library Extended Hours','Central Library will remain open 24/7 starting March 8 through exam season. Study pods can be booked online.','2 days ago'],
+        ['🎉','info','Annual Sports Day — March 20','Registrations open for all athletic events. Sign up with your House Captain before March 12.','3 days ago'],
+        ['⚠️','warn','Canteen Menu Update','New weekly menu effective March 3. South Indian breakfast added. Prices revised for combos.','4 days ago'],
+      ].map(([icon,type,title,text,time])=>`
+      <div class="alert-item" style="border-left-color:${type==='urgent'?'var(--danger)':type==='success'?'var(--student)':type==='warn'?'var(--warn)':'var(--professor)'}">
+        <div class="alert-icon">${icon}</div>
+        <div class="alert-body">
+          <div class="alert-title">${title}</div>
+          <div class="alert-text">${text}</div>
+          <div class="alert-time">${time}</div>
+        </div>
+        <div><span class="badge badge-${type==='urgent'?'red':type==='success'?'green':type==='warn'?'warn':'blue'}">${type}</span></div>
+      </div>`).join('')}
+    </div>
+  </div>`,
+
+  // ─────────────────────────────
+  // PROFESSOR VIEWS
+  mark_att: () => `
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h2 class="font-syne fw700" style="font-size:18px">Mark Attendance</h2>
+        <p class="text-muted text-sm">March 1, 2026 — Select a class</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="tb-btn primary" onclick="markAllPresent()">✅ Mark All Present</button>
+        <button class="tb-btn">💾 Save</button>
+      </div>
+    </div>
+    <div class="flex gap8 mb20">
+      ${[['Machine Learning','11:00 AM','Lab 3','#00e5a0'],['DSA','9:00 AM','R-204','#5b8dff'],['Computer Networks','2:00 PM','R-108','#ffc947']].map(([n,t,r,c],i)=>`
+      <div class="course-pill" style="border-color:${c};color:${c};background:${i===0?`rgba(0,229,160,.08)`:'transparent'}" onclick="selectCourse(this,'${c}')">
+        <div style="width:8px;height:8px;border-radius:50%;background:${c}"></div>
+        ${n} · ${t}
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Machine Learning — 11:00 AM · Lab 3</span>
+        <span class="text-sm text-muted">60 students</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:16px">
+        <div style="flex:1;background:var(--surface2);padding:12px;border-radius:12px;text-align:center">
+          <div class="font-syne fw700" style="font-size:22px;color:var(--student)" id="presentCount">54</div>
+          <div class="text-xs text-muted">Present</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);padding:12px;border-radius:12px;text-align:center">
+          <div class="font-syne fw700" style="font-size:22px;color:var(--danger)" id="absentCount">6</div>
+          <div class="text-xs text-muted">Absent</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);padding:12px;border-radius:12px;text-align:center">
+          <div class="font-syne fw700" style="font-size:22px;color:var(--professor)">90%</div>
+          <div class="text-xs text-muted">Rate</div>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Roll No.</th><th>Student Name</th><th>Overall Att.</th><th>Status</th><th>Toggle</th></tr></thead>
+        <tbody id="attTable">
+          ${[['CS001','Aarav Sharma','92%',true],['CS002','Priya Patel','88%',true],['CS003','Rohan Gupta','76%',false],['CS004','Neha Singh','95%',true],['CS005','Aryan Kumar','87%',true],['CS006','Kavya Reddy','82%',false],['CS007','Siddharth Jain','91%',true],['CS008','Ananya Nair','78%',false],['CS009','Dev Malhotra','94%',true],['CS010','Riya Verma','88%',true]].map(([r,n,a,p])=>`
+          <tr class="att-mark-row">
+            <td class="text-muted">${r}</td>
+            <td>${n}</td>
+            <td>${a}</td>
+            <td><span class="badge badge-${p?'green':'red'}" id="badge-${r}">${p?'✅ Present':'❌ Absent'}</span></td>
+            <td><button class="att-toggle ${p?'present':''}" id="tog-${r}" onclick="toggleAtt('${r}',this)"></button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`,
+
+  my_classes: () => `
+  <div class="page-body">
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">📚</div><div class="stat-val">4</div><div class="stat-lbl">Courses This Sem</div></div>
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">👥</div><div class="stat-val">240</div><div class="stat-lbl">Total Students</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">📝</div><div class="stat-val">8</div><div class="stat-lbl">Pending Evaluations</div></div>
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">⏰</div><div class="stat-val">2</div><div class="stat-lbl">Classes Today</div></div>
+    </div>
+    <div class="grid2">
+      ${[['Machine Learning','CS-601','60 students','Lab 3, Tue/Thu 11AM','#00e5a0',88,'Today 11AM'],['Data Structures','CS-401','65 students','R-204, Mon/Tue/Fri 9AM','#5b8dff',91,'Today 9AM'],['Computer Networks','CS-501','55 students','R-108, Tue/Fri 2PM','#ffc947',85,'Fri 2PM'],['Advanced Algorithms','CS-701','40 students','R-302, Wed 3PM','#c084fc',79,'Wed 3PM']].map(([n,code,s,sched,c,att,next])=>`
+      <div class="card card-hover">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+          <div style="width:12px;height:12px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0"></div>
+          <span class="badge badge-green" style="font-size:10px">● ${att}% avg att.</span>
+        </div>
+        <div class="font-syne fw700" style="font-size:16px;margin-bottom:3px">${n}</div>
+        <div class="text-xs text-muted mb12">${code} · ${s}</div>
+        <div class="text-sm text-muted mb12">📍 ${sched}</div>
+        <div class="prog-wrap mb12"><div class="prog-fill" style="width:${att}%;background:${c}"></div></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="tb-btn" style="flex:1;font-size:11px" onclick="showView('mark_att')">Mark Att.</button>
+          <button class="tb-btn" style="flex:1;font-size:11px" onclick="showView('grades')">Grades</button>
+        </div>
+        <div class="text-xs text-muted" style="margin-top:10px">Next: ${next}</div>
+      </div>`).join('')}
+    </div>
+  </div>`,
+
+  grades: () => `
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="font-syne fw700" style="font-size:18px">Machine Learning — Grades</div>
+      <button class="tb-btn primary">📤 Export CSV</button>
+    </div>
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-val">8.4</div><div class="stat-lbl">Class Average</div><div class="stat-tag tag-up">↑ vs last sem</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-val">9.8</div><div class="stat-lbl">Highest Score</div></div>
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-val">4.2</div><div class="stat-lbl">Lowest Score</div><div class="stat-tag tag-down">At risk</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-val">5</div><div class="stat-lbl">Failing Students</div></div>
+    </div>
+    <div class="card">
+      <table class="data-table">
+        <thead><tr><th>Roll No.</th><th>Name</th><th>Mid-Term</th><th>Lab</th><th>Quiz</th><th>Total</th><th>Grade</th><th>Risk</th></tr></thead>
+        <tbody>
+          ${[['CS001','Aarav Sharma','18','19','9','92','A+',''],['CS002','Priya Patel','16','17','8','82','A',''],['CS003','Rohan Gupta','11','13','5','58','C','⚠️'],['CS004','Neha Singh','19','20','9','96','A+',''],['CS005','Aryan Kumar','17','16','8','82','A',''],['CS006','Kavya Reddy','14','15','7','72','B',''],['CS007','Siddharth','12','11','4','54','D','🔴'],['CS008','Ananya Nair','15','16','7','76','B+','']].map(([r,n,m,l,q,t,g,risk])=>`
+          <tr><td class="text-muted">${r}</td><td style="font-weight:500">${n}</td><td>${m}/20</td><td>${l}/20</td><td>${q}/10</td><td class="font-syne fw700">${t}</td><td><span class="badge badge-${g.includes('A')?'green':g.includes('B')?'blue':g.includes('C')?'warn':'red'}">${g}</span></td><td>${risk}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`,
+
+  timetable: () => views.schedule(),
+
+  // ─────────────────────────────
+  // ADMIN VIEWS
+  users: () => `
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="font-syne fw700" style="font-size:18px">User Management</div>
+      <button class="tb-btn primary">+ Add User</button>
+    </div>
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">🎓</div><div class="stat-val">2,847</div><div class="stat-lbl">Students</div><div class="stat-tag tag-up">↑ 12 new</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">📋</div><div class="stat-val">148</div><div class="stat-lbl">Faculty</div></div>
+      <div class="stat-card" style="--c:var(--admin)"><div class="stat-icon">🏛️</div><div class="stat-val">32</div><div class="stat-lbl">Staff</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">⚠️</div><div class="stat-val">14</div><div class="stat-lbl">Inactive Accounts</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">All Users</span>
+        <div style="display:flex;gap:8px">
+          <button class="tb-btn">Filter</button>
+          <button class="tb-btn">Export</button>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Email</th><th>Status</th><th>Last Active</th><th>Action</th></tr></thead>
+        <tbody>
+          ${[['Aryan Kumar','Student','CSE','aryan@campus.edu','Active','2 hrs ago'],['Priya Patel','Student','ECE','priya@campus.edu','Active','Today'],['Prof. Sharma','Faculty','CSE','sharma@campus.edu','Active','1 hr ago'],['Prof. Mehta','Faculty','CSE','mehta@campus.edu','Active','Now'],['Rohan Dev','Student','Mech','rohan@campus.edu','Inactive','2 weeks ago'],['Dr. Anjali','Faculty','Physics','anjali@campus.edu','Active','Yesterday'],['Admin Singh','Staff','HR','singh@campus.edu','Active','3 hrs ago']].map(([n,r,d,e,s,la])=>`
+          <tr>
+            <td style="font-weight:500">${n}</td>
+            <td><span class="badge badge-${r==='Student'?'blue':r==='Faculty'?'green':'warn'}">${r}</span></td>
+            <td class="text-muted">${d}</td>
+            <td class="text-sm text-muted">${e}</td>
+            <td><span class="badge badge-${s==='Active'?'green':'gray'}">${s}</span></td>
+            <td class="text-sm text-muted">${la}</td>
+            <td><button class="tb-btn" style="font-size:11px;padding:4px 10px">Edit</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`,
+
+  campus_map: () => views.map(),
+
+  energy_admin: () => `
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="font-syne fw700" style="font-size:18px">Energy Control Panel</div>
+      <div style="display:flex;gap:8px"><button class="tb-btn primary">⬇️ Generate Report</button><button class="tb-btn">⚙️ Configure Alerts</button></div>
+    </div>
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">⚡</div><div class="stat-val">2.4<span>kW</span></div><div class="stat-lbl">Current Draw</div><div class="stat-tag tag-up">↓ 8% below avg</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">🌞</div><div class="stat-val">0.82<span>kW</span></div><div class="stat-lbl">Solar Generating</div><div class="stat-tag tag-up">34% of load</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">📈</div><div class="stat-val">₹4.2<span>K</span></div><div class="stat-lbl">Today's Bill Est.</div><div class="stat-tag tag-up">↓ savings ₹380</div></div>
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">🚨</div><div class="stat-val">2</div><div class="stat-lbl">Active Alerts</div><div class="stat-tag tag-down">Needs attention</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Building Controls</span><span class="live"><div class="live-dot"></div>Live</span></div>
+        ${[['🏫 Academic Block A','78%','#00e5a0',true],['📚 Library','45%','#5b8dff',true],['🧪 Labs Complex','62%','#ffc947',true],['🍽️ Cafeteria','33%','#ff6b6b',true],['🏠 Hostel','20%','#c084fc',false],['⚕️ Medical','18%','#00e5a0',true]].map(([n,w,c,on])=>`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:12px;width:150px;color:var(--muted2)">${n}</span>
+          <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${w};background:${c}"></div></div>
+          <span style="font-size:11px;width:30px;text-align:right">${w}</span>
+          <div style="width:28px;height:16px;border-radius:99px;background:${on?'rgba(0,229,160,.25)':'var(--surface3)'};cursor:pointer;position:relative;flex-shrink:0">
+            <div style="width:10px;height:10px;border-radius:50%;background:${on?'var(--student)':'var(--muted)'};position:absolute;top:3px;${on?'right:3px':'left:3px'}"></div>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Active Alerts</span></div>
+        <div class="flex flex-col gap12">
+          <div class="alert-item" style="border-left-color:var(--danger)">
+            <div class="alert-icon">🔴</div>
+            <div class="alert-body">
+              <div class="alert-title">Lab Complex — Peak Usage Warning</div>
+              <div class="alert-text">Labs exceeding 80% capacity. Consider shifting non-essential loads.</div>
+              <div class="alert-time">15 min ago</div>
+            </div>
+          </div>
+          <div class="alert-item" style="border-left-color:var(--warn)">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-body">
+              <div class="alert-title">Solar Panel Unit 4 — Reduced Output</div>
+              <div class="alert-text">Panel efficiency down 12%. Maintenance check recommended.</div>
+              <div class="alert-time">2 hrs ago</div>
+            </div>
+          </div>
+          <div class="alert-item" style="border-left-color:var(--student)">
+            <div class="alert-icon">✅</div>
+            <div class="alert-body">
+              <div class="alert-title">Night Mode Active — Hostel Block</div>
+              <div class="alert-text">Automated lighting reduction saving ~200W overnight.</div>
+              <div class="alert-time">8 PM yesterday</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  announcements_admin: () => `
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="font-syne fw700" style="font-size:18px">Announcements</div>
+      <button class="tb-btn primary">✏️ New Announcement</button>
+    </div>
+    <div class="grid2">
+      <div class="card" style="height:fit-content">
+        <div class="card-head"><span class="card-title">Create Announcement</span></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><label class="form-label" style="display:block;margin-bottom:6px">TITLE</label><input class="form-input" placeholder="Announcement title..." value="Mid-term Exam Schedule"></div>
+          <div><label class="form-label" style="display:block;margin-bottom:6px">AUDIENCE</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${['All Students','Faculty','Sem 6','CSE Dept','Hostel'].map((a,i)=>`<div class="badge badge-${i<2?'blue':'gray'}" style="cursor:pointer">${a}</div>`).join('')}
+            </div>
+          </div>
+          <div><label class="form-label" style="display:block;margin-bottom:6px">PRIORITY</label>
+            <div style="display:flex;gap:6px">
+              ${[['🔴 Urgent','red',true],['🟡 Normal','warn',false],['🔵 Info','blue',false]].map(([l,c,s])=>`<div class="badge badge-${s?c:'gray'}" style="cursor:pointer;padding:6px 12px">${l}</div>`).join('')}
+            </div>
+          </div>
+          <div><label class="form-label" style="display:block;margin-bottom:6px">MESSAGE</label><textarea class="form-input" rows="4" placeholder="Write your announcement here...">Mid-term exams will be held from March 10–15. Please check the portal for individual timetables.</textarea></div>
+          <button class="tb-btn primary" style="border-radius:12px;padding:12px">📤 Publish Announcement</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Published</span><span class="text-sm text-muted">Recent</span></div>
+        <div class="flex flex-col gap12">
+          ${[['🚨','urgent','Mid-term Exam Schedule Released','2 hrs ago','All Students · 2,847 seen'],['📢','info','Hackathon Registration Open','Yesterday','All · 1,234 seen'],['✅','success','Library Hours Extended','2 days ago','All Students · 2,100 seen']].map(([ic,t,ti,time,reach])=>`
+          <div class="alert-item" style="border-left-color:${t==='urgent'?'var(--danger)':t==='success'?'var(--student)':'var(--professor)'}">
+            <div class="alert-icon">${ic}</div>
+            <div class="alert-body">
+              <div class="alert-title">${ti}</div>
+              <div class="alert-text">${reach}</div>
+              <div class="alert-time">${time}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px"><button class="tb-btn" style="font-size:10px;padding:3px 8px">Edit</button><button class="tb-btn" style="font-size:10px;padding:3px 8px;color:var(--danger);border-color:var(--danger)">Delete</button></div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  reports: () => `
+  <div class="page-body">
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">📊</div><div class="stat-val">87<span>%</span></div><div class="stat-lbl">Avg Campus Attendance</div><div class="stat-tag tag-up">↑ 2% vs last month</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">🎓</div><div class="stat-val">8.1</div><div class="stat-lbl">Avg CGPA</div><div class="stat-tag tag-neutral">All branches</div></div>
+      <div class="stat-card" style="--c:var(--admin)"><div class="stat-icon">⚡</div><div class="stat-val">72<span>kW</span></div><div class="stat-lbl">Energy This Month</div><div class="stat-tag tag-up">↓ 5% savings</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">🏆</div><div class="stat-val">94<span>%</span></div><div class="stat-lbl">Course Completion</div><div class="stat-tag tag-up">↑ Excellent</div></div>
+    </div>
+    <div class="grid2 mb20">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Attendance by Department</span></div>
+        <div class="chart-bars">
+          ${[['CSE','89%',89,'#00e5a0'],['ECE','85%',85,'#5b8dff'],['Mech','78%',78,'#ffc947'],['Civil','82%',82,'#c084fc'],['IT','91%',91,'#ff9f43']].map(([d,p,v,c])=>`
+          <div class="chart-bar-wrap">
+            <div class="chart-bar-val">${p}</div>
+            <div class="chart-bar" style="height:${v}%;background:${c}8A"></div>
+            <div class="chart-bar-label">${d}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Grade Distribution</span></div>
+        <div class="chart-bars">
+          ${[['A+','18%',18,'#00e5a0'],['A','32%',32,'#5b8dff'],['B+','24%',24,'#ffc947'],['B','15%',15,'#c084fc'],['C','8%',8,'#ff9f43'],['<C','3%',3,'#ff6b6b']].map(([g,p,v,c])=>`
+          <div class="chart-bar-wrap">
+            <div class="chart-bar-val">${p}</div>
+            <div class="chart-bar" style="height:${v*2}%;background:${c}8A"></div>
+            <div class="chart-bar-label">${g}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Quick Reports</span></div>
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+        ${[['📄','Attendance Report','Export full attendance by branch/semester'],['📈','Academic Performance','Grade analytics & CGPA distribution'],['⚡','Energy Report','Monthly usage, savings, carbon footprint'],['👥','Faculty Report','Workload, class coverage, evaluations']].map(([i,t,d])=>`
+        <div class="card card-hover" style="cursor:pointer;padding:16px">
+          <div style="font-size:22px;margin-bottom:8px">${i}</div>
+          <div class="font-syne fw700 text-sm mb12">${t}</div>
+          <div class="text-xs text-muted mb12">${d}</div>
+          <button class="tb-btn" style="font-size:11px;width:100%">📤 Export</button>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`,
+
+  settings: () => `
+  <div class="page-body">
+    <div class="grid2">
+      <div class="flex flex-col gap16">
+        <div class="card">
+          <div class="card-head"><span class="card-title">General Settings</span></div>
+          ${[['Institution Name','IIT Demo Campus'],['Academic Year','2025–2026'],['Current Semester','Even Semester 6'],['Time Zone','IST (UTC+5:30)']].map(([l,v])=>`
+          <div style="margin-bottom:14px"><label class="form-label" style="display:block;margin-bottom:6px;font-size:11px;color:var(--muted2)">${l}</label><input class="form-input" value="${v}"></div>`).join('')}
+          <button class="tb-btn primary" style="border-radius:10px;padding:10px 20px">Save Changes</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Notifications</span></div>
+          ${[['Email Alerts for Low Attendance',true],['Energy Peak Warnings',true],['Daily Summary Report',false],['New User Registrations',true]].map(([l,on])=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="font-size:13px">${l}</span>
+            <div style="width:36px;height:20px;border-radius:99px;background:${on?'rgba(0,229,160,.25)':'var(--surface3)'};cursor:pointer;position:relative">
+              <div style="width:14px;height:14px;border-radius:50%;background:${on?'var(--student)':'var(--muted)'};position:absolute;top:3px;${on?'right:3px':'left:3px'}"></div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="flex flex-col gap16">
+        <div class="card">
+          <div class="card-head"><span class="card-title">System Status</span></div>
+          ${[['🟢 API Server','Operational'],['🟢 Database','Operational'],['🟢 AI Assistant','Operational'],['🟡 Email Service','Degraded'],['🟢 File Storage','Operational']].map(([s,st])=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px">${s}</span>
+            <span class="badge badge-${st==='Operational'?'green':'warn'}">${st}</span>
+          </div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Danger Zone</span></div>
+          <div class="flex flex-col gap8">
+            <button class="tb-btn" style="border-color:var(--warn);color:var(--warn)">🔄 Reset Semester Data</button>
+            <button class="tb-btn" style="border-color:var(--danger);color:var(--danger)">💾 Backup Database</button>
+            <button class="tb-btn" style="border-color:var(--danger);color:var(--danger)">🚨 Emergency Broadcast</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // ─────────────────────────────
+  // CHAT (all roles)
+  chat: () => `
+  <div class="chat-shell">
+    <div class="chat-header">
+      <div class="chat-ai-avatar">🤖</div>
+      <div class="chat-header-info">
+        <h3>CampusAI Assistant</h3>
+        <p>● Online · Powered by Claude</p>
+      </div>
+      <div style="margin-left:auto"><button class="tb-btn" onclick="clearChat()">Clear</button></div>
+    </div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg ai">
+        <div class="msg-av">🤖</div>
+        <div>
+          <div class="msg-bbl">${getChatWelcome()}</div>
+          <div class="msg-chips">${getChatChips()}</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-inp" id="chatInp" placeholder="Ask anything about campus..." rows="1"></textarea>
+      <button class="send-btn" onclick="sendMsg()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>`,
+};
+
+/* ─── HOME DASHBOARDS ─── */
+function studentHome() {
+  return `<div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h1 class="font-syne fw700" style="font-size:24px">Good morning, Aryan 👋</h1>
+        <p class="text-muted text-sm" style="margin-top:4px"><span class="live"><div class="live-dot"></div>Sunday, March 1, 2026 · Semester 6</span></p>
+      </div>
+      <button class="tb-btn primary" onclick="showView('chat')">🤖 Ask AI</button>
+    </div>
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card card-hover" style="--c:var(--student);cursor:pointer" onclick="showView('attendance')"><div class="stat-icon">📗</div><div class="stat-val">87<span>%</span></div><div class="stat-lbl">Attendance Rate</div><div class="stat-tag tag-up">↑ +2% this week</div></div>
+      <div class="stat-card card-hover" style="--c:var(--professor);cursor:pointer" onclick="showView('assignments')"><div class="stat-icon">📝</div><div class="stat-val">3</div><div class="stat-lbl">Assignments Due</div><div class="stat-tag tag-down">2 this week</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">⚡</div><div class="stat-val">2.4<span>kW</span></div><div class="stat-lbl">Campus Energy Now</div><div class="stat-tag tag-up">↓ 8% avg</div></div>
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">🎯</div><div class="stat-val">8.3</div><div class="stat-lbl">Current CGPA</div><div class="stat-tag tag-neutral">Top 12%</div></div>
+    </div>
+    <div class="grid2 mb20">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Today's Classes</span><span class="card-action" onclick="showView('schedule')">Full schedule →</span></div>
+        <div class="flex flex-col gap8">
+          ${[['DSA','Prof. Sharma','Room 204','9:00–10:30 AM','#5b8dff',false],['Machine Learning','Prof. Mehta','Lab 3','11:00 AM–12:30 PM','#00e5a0',true],['Computer Networks','Prof. Gupta','Room 108','2:00–3:30 PM','#ffc947',false],['SE Lab','Prof. Jain','Lab 7','4:00–5:30 PM','#ff6b6b',false]].map(([n,p,r,t,c,now])=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:${now?`rgba(0,229,160,.05)`:'var(--surface2)'};border-radius:12px;border:1px solid ${now?'var(--student)':'transparent'}">
+            <div style="width:3px;height:40px;border-radius:99px;background:${c};flex-shrink:0"></div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500">${n}</div>
+              <div style="font-size:11px;color:var(--muted2)">${p} · ${r}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:12px;color:var(--muted2)">${t}</div>
+              ${now?`<div style="font-size:10px;background:var(--student);color:#000;padding:2px 8px;border-radius:999px;margin-top:3px;font-weight:600">NOW</div>`:''}
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Attendance Overview</span><span class="card-action" onclick="showView('attendance')">Details →</span></div>
+        <div style="display:flex;align-items:center;gap:24px">
+          <div class="ring-container">
+            <svg viewBox="0 0 110 110"><circle class="ring-bg" cx="55" cy="55" r="45"/><circle class="ring-fill" cx="55" cy="55" r="45" style="stroke-dashoffset:345"/></svg>
+            <div class="ring-inner"><div class="ring-pct">87%</div><div class="ring-lbl">Overall</div></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+            ${[['DSA','92%','#5b8dff',92],['ML','88%','#00e5a0',88],['Networks','76%','#ffc947',76],['SE Lab','95%','#ff6b6b',95],['DBMS','82%','#c084fc',82]].map(([n,p,c,v])=>`
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span class="text-muted">${n}</span><span style="color:${c}">${p}</span></div>
+              <div class="prog-wrap" style="height:4px"><div class="prog-fill" style="width:${v}%;background:${c}"></div></div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Announcements</span><span style="background:var(--danger);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px;font-weight:600">3 new</span></div>
+        <div class="flex flex-col gap8">
+          ${[['🚨','urgent','Mid-term Schedule Released','2 hrs ago'],['📢','info','Hackathon 2026 Registration','Yesterday'],['✅','success','Library Hours Extended','2 days ago']].map(([ic,t,ti,time])=>`
+          <div class="alert-item" style="border-left-color:${t==='urgent'?'var(--danger)':t==='success'?'var(--student)':'var(--professor)'}">
+            <div class="alert-icon">${ic}</div>
+            <div class="alert-body"><div class="alert-title">${ti}</div><div class="alert-time">${time}</div></div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Quick Actions</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${[['🗺️','Campus Map','map'],['⚡','Energy','energy'],['📅','Schedule','schedule'],['🤖','Ask AI','chat'],['📝','Assignments','assignments'],['📢','Notices','announcements']].map(([i,l,v])=>`
+          <div class="card card-hover" style="padding:16px;text-align:center;cursor:pointer" onclick="showView('${v}')">
+            <div style="font-size:22px;margin-bottom:6px">${i}</div>
+            <div style="font-size:12px;font-weight:500">${l}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function professorHome() {
+  return `<div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h1 class="font-syne fw700" style="font-size:24px">Good morning, Prof. Mehta 👋</h1>
+        <p class="text-muted text-sm" style="margin-top:4px"><span class="live"><div class="live-dot"></div>Sunday, March 1 · CSE Department</span></p>
+      </div>
+      <button class="tb-btn primary" onclick="showView('mark_att')">✅ Mark Attendance</button>
+    </div>
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">📚</div><div class="stat-val">4</div><div class="stat-lbl">Active Courses</div></div>
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">👥</div><div class="stat-val">240</div><div class="stat-lbl">Total Students</div><div class="stat-tag tag-neutral">4 sections</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">📝</div><div class="stat-val">8</div><div class="stat-lbl">Pending Evaluations</div><div class="stat-tag tag-down">Due this week</div></div>
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">⚠️</div><div class="stat-val">6</div><div class="stat-lbl">Low Attendance Students</div><div class="stat-tag tag-down">Need action</div></div>
+    </div>
+    <div class="grid2 mb20">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Today's Classes</span></div>
+        ${[['Machine Learning','11:00 AM – 12:30 PM','Lab 3 · 60 students','#00e5a0',true],['Advanced Algorithms','3:00 PM – 4:30 PM','Room 302 · 40 students','#c084fc',false]].map(([n,t,d,c,now])=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:14px;background:${now?`rgba(91,141,255,.05)`:'var(--surface2)'};border-radius:12px;border:1px solid ${now?'var(--professor)':'transparent'};margin-bottom:8px">
+          <div style="width:4px;height:50px;border-radius:99px;background:${c};flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500">${n}</div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:3px">${d}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:var(--muted2)">${t}</div>
+            ${now?`<div style="font-size:10px;background:var(--professor);color:#fff;padding:2px 8px;border-radius:999px;margin-top:4px;font-weight:600">UPCOMING</div>`:
+            `<button class="tb-btn" style="font-size:11px;margin-top:4px" onclick="showView('mark_att')">Mark Att.</button>`}
+          </div>
+        </div>`).join('')}
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="tb-btn" style="flex:1" onclick="showView('mark_att')">✅ Mark Attendance</button>
+          <button class="tb-btn" style="flex:1" onclick="showView('timetable')">📅 Timetable</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Class Attendance Summary</span></div>
+        ${[['Machine Learning','88%','#00e5a0',88],['Data Structures','91%','#5b8dff',91],['Computer Networks','85%','#ffc947',85],['Advanced Algorithms','79%','#c084fc',79]].map(([n,p,c,v])=>`
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>${n}</span><span style="color:${c}">${p}</span></div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:${v}%;background:${c}"></div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">At-Risk Students</span><span class="card-action" onclick="showView('grades')">View all →</span></div>
+        <table class="data-table">
+          <thead><tr><th>Student</th><th>Course</th><th>Att.</th><th>Action</th></tr></thead>
+          <tbody>
+            ${[['Rohan Gupta','ML','75%'],['Kavya Reddy','Networks','72%'],['Siddharth Jain','DSA','68%']].map(([n,c,a])=>`
+            <tr><td style="font-weight:500">${n}</td><td class="text-muted text-sm">${c}</td><td><span class="badge badge-warn">${a}</span></td><td><button class="tb-btn" style="font-size:10px;padding:3px 8px">Notify</button></td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Quick Actions</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${[['✅','Mark Attendance','mark_att'],['🏆','View Grades','grades'],['📚','My Classes','my_classes'],['🤖','AI Assistant','chat'],['📅','Timetable','timetable'],['📢','Announcements','announcements']].map(([i,l,v])=>`
+          <div class="card card-hover" style="padding:16px;text-align:center;cursor:pointer" onclick="showView('${v}')">
+            <div style="font-size:20px;margin-bottom:6px">${i}</div>
+            <div style="font-size:12px;font-weight:500">${l}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function adminHome() {
+  return `<div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h1 class="font-syne fw700" style="font-size:24px">Campus Overview — Admin 🏛️</h1>
+        <p class="text-muted text-sm" style="margin-top:4px"><span class="live"><div class="live-dot"></div>Sunday, March 1, 2026 · Dean Dashboard</span></p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="tb-btn" onclick="showView('reports')">📊 Reports</button>
+        <button class="tb-btn primary" onclick="showView('announcements_admin')">📢 New Announcement</button>
+      </div>
+    </div>
+    <div class="stat-grid g4 mb20">
+      <div class="stat-card" style="--c:var(--student)"><div class="stat-icon">👥</div><div class="stat-val">3,027</div><div class="stat-lbl">Total Users</div><div class="stat-tag tag-up">↑ 12 new today</div></div>
+      <div class="stat-card" style="--c:var(--professor)"><div class="stat-icon">📗</div><div class="stat-val">87<span>%</span></div><div class="stat-lbl">Campus Attendance</div><div class="stat-tag tag-up">↑ vs last week</div></div>
+      <div class="stat-card" style="--c:var(--warn)"><div class="stat-icon">⚡</div><div class="stat-val">2.4<span>kW</span></div><div class="stat-lbl">Live Energy Draw</div><div class="stat-tag tag-up">↓ 8% below avg</div></div>
+      <div class="stat-card" style="--c:var(--danger)"><div class="stat-icon">🚨</div><div class="stat-val">2</div><div class="stat-lbl">Active Alerts</div><div class="stat-tag tag-down">Needs review</div></div>
+    </div>
+    <div class="grid3 mb20">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Dept. Attendance</span><span class="card-action" onclick="showView('reports')">Report →</span></div>
+        ${[['CSE','89%',89,'#00e5a0'],['ECE','85%',85,'#5b8dff'],['Mech','78%',78,'#ffc947'],['Civil','82%',82,'#c084fc'],['IT','91%',91,'#ff9f43']].map(([d,p,c,v])=>`
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${d}</span><span style="color:${c}">${p}</span></div>
+          <div class="prog-wrap" style="height:5px"><div class="prog-fill" style="width:${v}%;background:${c}"></div></div>
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Live Energy</span><span class="card-action" onclick="showView('energy_admin')">Control →</span></div>
+        ${[['Academic A','78%','#00e5a0'],['Library','45%','#5b8dff'],['Labs','62%','#ffc947'],['Cafeteria','33%','#ff6b6b'],['Hostel','20%','#c084fc']].map(([n,w,c])=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px">
+          <span style="width:80px;color:var(--muted2)">${n}</span>
+          <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${w};background:${c}"></div></div>
+          <span style="width:30px;text-align:right">${w}</span>
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Active Alerts</span></div>
+        <div class="flex flex-col gap8">
+          ${[['🔴','var(--danger)','Lab Complex Peak Usage','15 min ago'],['⚠️','var(--warn)','Solar Panel Reduced Output','2 hrs ago'],['📢','var(--professor)','Mid-term Schedule Published','2 hrs ago']].map(([ic,c,t,time])=>`
+          <div style="display:flex;gap:10px;padding:10px;background:var(--surface2);border-radius:10px;border-left:3px solid ${c}">
+            <span>${ic}</span>
+            <div><div style="font-size:12px;font-weight:500">${t}</div><div style="font-size:11px;color:var(--muted2)">${time}</div></div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Recent Announcements</span><span class="card-action" onclick="showView('announcements_admin')">Manage →</span></div>
+        ${[['🚨','urgent','Mid-term Exam Schedule Released','2 hrs ago · 2,847 seen'],['📢','info','Hackathon 2026 Registration Open','Yesterday · 1,234 seen']].map(([ic,t,ti,meta])=>`
+        <div class="alert-item" style="border-left-color:${t==='urgent'?'var(--danger)':'var(--professor)'}">
+          <div class="alert-icon">${ic}</div>
+          <div class="alert-body"><div class="alert-title">${ti}</div><div class="alert-text text-muted text-xs">${meta}</div></div>
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Admin Quick Actions</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${[['👥','Users','users'],['🗺️','Campus Map','campus_map'],['📊','Reports','reports'],['⚙️','Settings','settings'],['📢','Announce','announcements_admin'],['🤖','AI Chat','chat']].map(([i,l,v])=>`
+          <div class="card card-hover" style="padding:16px;text-align:center;cursor:pointer" onclick="showView('${v}')">
+            <div style="font-size:20px;margin-bottom:6px">${i}</div>
+            <div style="font-size:12px;font-weight:500">${l}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════
+   CHAT LOGIC
+═══════════════════════════════ */
+function getChatWelcome() {
+  const names = {student:'Aryan',professor:'Prof. Mehta',admin:'Dr. Singh'};
+  const msgs = {
+    student: `Hi ${names.student}! I'm your campus AI assistant. Ask me about your schedule, attendance, assignments, campus locations, or anything else!`,
+    professor: `Hello Prof. Mehta! I can help you manage attendance, check student performance, look up campus info, or assist with announcements.`,
+    admin: `Welcome Dr. Singh! I can assist with campus analytics, draft announcements, provide energy insights, or answer any admin queries.`
+  };
+  return msgs[currentRole];
+}
+
+function getChatChips() {
+  const chips = {
+    student: ['📅 Today\'s schedule','📊 My attendance','🗺️ Library location','📝 Due assignments','⚡ Energy status'],
+    professor: ['✅ Mark today\'s attendance','📋 At-risk students','📊 Class performance','📝 Pending evaluations','📢 Draft announcement'],
+    admin: ['📊 Today\'s campus summary','⚡ Energy status','👥 New registrations','🚨 Active alerts','📢 Draft announcement']
+  };
+  return chips[currentRole].map(c=>`<span class="chip" onclick="chipSend(this)">${c}</span>`).join('');
+}
+
+const aiAnswers = {
+  "📅 Today's schedule": "Here's your schedule today:\n\n🔵 9:00–10:30 AM — DSA (Room 204, Prof. Sharma)\n🟢 11:00 AM–12:30 PM — Machine Learning (Lab 3) — NOW!\n🟡 2:00–3:30 PM — Computer Networks (Room 108)\n🔴 4:00–5:30 PM — SE Lab (Lab 7)\n\nYou have a free hour 1–2 PM. Perfect for lunch!",
+  "📊 My attendance": "Your attendance summary:\n\n• DSA: 92% ✅ Safe\n• ML: 88% ✅ Safe\n• Networks: 76% ⚠️ At risk — can miss 0 more\n• SE Lab: 95% ✅ Excellent\n• DBMS: 82% ✅ Safe\n\nOverall: 87%. Watch Networks closely!",
+  "🗺️ Library location": "📚 Central Library is in the North-East block.\n\nFrom your current location (Admin Block):\n1. Head North on Main Road\n2. Right at Academic Block A junction\n3. Library is 200m ahead\n\n⏱️ ~4 min walk. Open 24/7 this exam season!",
+  "📝 Due assignments": "📋 You have 3 pending assignments:\n\n🔴 Binary Tree Lab Report — Due Mar 3 (DSA)\n🟡 ML Model - Iris Dataset — Due Mar 5\n🔵 OSI Layer Diagram — Due Mar 8 (Networks)\n\nI'd suggest starting the ML model today!",
+  "⚡ Energy status": "⚡ Campus energy right now:\n\n• Total draw: 2.38 kW (↓8% below average)\n• Solar generating: 34% of total\n• Highest usage: Academic Block A (780W)\n• 2 active alerts in energy panel\n\nToday is running efficiently! 🌱",
+  "✅ Mark today's attendance": "You have 2 classes today:\n\n📍 Machine Learning — Lab 3, 11:00 AM (60 students)\n📍 Advanced Algorithms — R-302, 3:00 PM (40 students)\n\nClick 'Mark Attendance' in the sidebar to get started for ML class now!",
+  "📋 At-risk students": "⚠️ Students with attendance < 80%:\n\n• Rohan Gupta — ML: 75%, DSA: 72%\n• Kavya Reddy — Networks: 72%\n• Siddharth Jain — DSA: 68% 🔴 Critical\n\nWould you like me to draft a warning email to their guardians?",
+  "📊 Class performance": "📈 Your class averages this semester:\n\n• Machine Learning: 8.4/10 avg ✅\n• Data Structures: 8.1/10 avg ✅\n• Computer Networks: 7.6/10 avg ⚠️\n• Advanced Algorithms: 7.2/10 avg ⚠️\n\nNetworks and Algo classes may need extra support sessions.",
+  "📊 Today's campus summary": "🏛️ Campus summary for March 1:\n\n• 3,027 users active\n• Attendance: 87% (↑ vs last week)\n• Energy: 2.38kW, 34% solar\n• 2 active alerts (energy panel)\n• 3 announcements published today\n\nOverall campus running smoothly today!",
+  "🚨 Active alerts": "🚨 Current active alerts:\n\n1. 🔴 Lab Complex — Peak Usage (80%+)\n   → Consider shifting non-essential loads\n\n2. ⚠️ Solar Panel Unit 4 — 12% reduced output\n   → Maintenance team should be notified\n\nShall I draft a work order for the solar panel team?",
+};
+
+function chipSend(el) {
+  const text = el.textContent.trim();
+  addMsg('user', text);
+  el.closest('.msg-chips').style.display='none';
+  showTyping();
+  setTimeout(()=>{
+    removeTyping();
+    addMsg('ai', aiAnswers[text]||`Let me look that up for you... Based on current campus data, I can see relevant information for your query about "${text}". Is there anything specific you'd like to drill down into?`);
+  }, 1200);
+}
+
+function sendMsg() {
+  const inp = document.getElementById('chatInp');
+  if(!inp) return;
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value = '';
+  addMsg('user', text);
+  showTyping();
+  setTimeout(()=>{
+    removeTyping();
+    const lc = text.toLowerCase();
+    let reply = `I understand you're asking about "${text}". Based on campus data, let me help you with that!\n\nCould you be more specific? I can assist with schedules, attendance, assignments, energy, campus locations, and more.`;
+    if(lc.includes('schedule')||lc.includes('class')) reply = aiAnswers["📅 Today's schedule"];
+    else if(lc.includes('attend')) reply = aiAnswers["📊 My attendance"];
+    else if(lc.includes('library')||lc.includes('where')) reply = aiAnswers["🗺️ Library location"];
+    else if(lc.includes('assign')||lc.includes('due')) reply = aiAnswers["📝 Due assignments"];
+    else if(lc.includes('energy')||lc.includes('power')) reply = aiAnswers["⚡ Energy status"];
+    else if(lc.includes('alert')||lc.includes('warning')) reply = aiAnswers["🚨 Active alerts"];
+    addMsg('ai', reply);
+  }, 1400);
+}
+
+function addMsg(role, text) {
+  const container = document.getElementById('chatMsgs');
+  if(!container) return;
+  const r = ROLES[currentRole];
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="msg-av" style="${role==='user'?`background:${r.accent};color:${currentRole==='student'?'#000':'#fff'};font-family:'Syne',sans-serif`:''}">
+      ${role==='ai'?'🤖':r.initials}
+    </div>
+    <div class="msg-bbl">${text.replace(/\n/g,'<br>')}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('chatMsgs');
+  if(!c) return;
+  const d = document.createElement('div');
+  d.className='msg ai'; d.id='typingMsg';
+  d.innerHTML=`<div class="msg-av">🤖</div><div class="typing-ind"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingMsg');
+  if(el) el.remove();
+}
+
+function clearChat() {
+  const c = document.getElementById('chatMsgs');
+  if(!c) return;
+  c.innerHTML=`<div class="msg ai"><div class="msg-av">🤖</div><div><div class="msg-bbl">Chat cleared! How can I help you?</div><div class="msg-chips">${getChatChips()}</div></div></div>`;
+}
+
+/* ═══════════════════════════════
+   ATTENDANCE TOGGLE (Professor)
+═══════════════════════════════ */
+function toggleAtt(roll, btn) {
+  btn.classList.toggle('present');
+  const isPresent = btn.classList.contains('present');
+  const badge = document.getElementById('badge-'+roll);
+  if(badge) {
+    badge.textContent = isPresent ? '✅ Present' : '❌ Absent';
+    badge.className = 'badge badge-'+(isPresent?'green':'red');
+  }
+  // Update counts
+  const present = document.querySelectorAll('.att-toggle.present').length;
+  const total = document.querySelectorAll('.att-toggle').length;
+  const pc = document.getElementById('presentCount');
+  const ac = document.getElementById('absentCount');
+  if(pc) pc.textContent = present;
+  if(ac) ac.textContent = total - present;
+}
+
+function markAllPresent() {
+  document.querySelectorAll('.att-toggle').forEach(btn => {
+    btn.classList.add('present');
+    const roll = btn.id.replace('tog-','');
+    const badge = document.getElementById('badge-'+roll);
+    if(badge) { badge.textContent='✅ Present'; badge.className='badge badge-green'; }
+  });
+  const total = document.querySelectorAll('.att-toggle').length;
+  const pc = document.getElementById('presentCount');
+  const ac = document.getElementById('absentCount');
+  if(pc) pc.textContent = total;
+  if(ac) ac.textContent = 0;
+}
+
+function selectCourse(el, color) {
+  document.querySelectorAll('.course-pill').forEach(p=>{p.style.background='transparent';});
+  el.style.background = `rgba(${color.replace('#','').match(/../g).map(h=>parseInt(h,16)).join(',')}, 0.08)`;
+}
+</script>
+</body>
+</html>

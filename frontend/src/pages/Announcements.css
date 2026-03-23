@@ -1,0 +1,12 @@
+.alert-item {
+  display: flex; gap: 14px; padding: 16px;
+  background: var(--surface); border-radius: 16px;
+  border-left: 4px solid var(--accent);
+  transition: transform .2s;
+}
+.alert-item:hover { transform: translateX(4px); }
+.alert-icon { font-size: 24px; padding-top: 4px; }
+.alert-body { flex: 1; }
+.alert-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--text); }
+.alert-text { font-size: 13px; color: var(--muted2); line-height: 1.5; margin-bottom: 8px; }
+.alert-time { font-size: 11px; color: var(--muted); }

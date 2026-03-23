@@ -1,0 +1,10 @@
+/* ─── APP SHELL ─── */
+.app-shell { display:flex; height:100vh; overflow:hidden; }
+
+/* ─── MAIN ─── */
+.main-content { flex:1; overflow-y:auto; overflow-x:hidden; position:relative; }
+
+/* ─── PAGE VIEWS ─── */
+.view { display:none; }
+.view.active { display:block; animation: fadeUp .3s ease; }
+.page-body { padding: 28px; }

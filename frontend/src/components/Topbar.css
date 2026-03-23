@@ -1,0 +1,46 @@
+/* Top bar */
+.topbar {
+  position: sticky; top:0; z-index:50;
+  background: rgba(8,11,18,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700;
+  flex:1;
+}
+
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+.tb-btn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  transition: all .2s;
+}
+.tb-btn:hover { border-color: var(--accent); color: var(--accent); }
+.tb-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight:600; }
+.tb-btn.primary:hover { filter: brightness(1.1); color: #000; }
+
+.topbar-notif {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  font-size: 16px;
+  transition: all .2s;
+}
+.topbar-notif:hover { border-color: var(--border2); background: var(--surface3); }
+.notif-dot { position:absolute; top:5px; right:5px; width:7px; height:7px; background:var(--danger); border-radius:50%; border:2px solid var(--surface2); }

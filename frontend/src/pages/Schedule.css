@@ -1,0 +1,16 @@
+/* Schedule grid */
+.week-grid { display:grid; grid-template-columns:50px repeat(5,1fr); background:var(--border); gap:1px; border-radius:14px; overflow:hidden; }
+.wg-head { background:var(--surface); padding:12px 8px; text-align:center; font-size:11px; color:var(--muted2); }
+.wg-head strong { display:block; font-size:18px; font-family:'Syne',sans-serif; color:var(--text); font-weight:700; }
+.wg-head.today strong { color:var(--student); }
+.wg-time { background:var(--surface); }
+.wg-slot { height:60px; font-size:10px; color:var(--muted); padding:4px 6px; border-top:1px solid var(--border); }
+.wg-day { background:var(--surface); position:relative; min-height:600px; } /* 10 slots * 60px = 600px */
+.sched-block {
+  position:absolute; left:4px; right:4px; border-radius:8px;
+  padding:6px 8px; font-size:11px; cursor:pointer; transition:filter .2s;
+  overflow:hidden;
+}
+.sched-block:hover { filter:brightness(1.2); }
+.sb-name { font-weight:600; font-size:12px; }
+.sb-room { opacity:.7; margin-top:2px; }
